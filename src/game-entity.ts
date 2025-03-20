@@ -1,4 +1,4 @@
 export interface IGameEntity{
-     update():void;
-     draw(ctx:CanvasRenderingContext2D):void;
+     update(dt: number): void;
+     draw(ctx: CanvasRenderingContext2D): void;
 }

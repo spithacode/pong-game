@@ -1,60 +1,50 @@
-import { Ball } from "./ball";
 import { IGameEntity } from "./game-entity";
-import { InputManager } from "./inputManager";
+import { InputManager } from "@spithacode/input-manager";
 import { HIGHT } from "./main";
 
-export class Paddle implements IGameEntity{
-
-    private speed = 5;
+export class Paddle implements IGameEntity {
+    // Base speed in pixels per second
+    private baseSpeed = 300;
     private ratio = 4;
+    
     constructor(
         public x: number,
         public y: number,
         public size: number,
+        private inputManager: InputManager,
+        private keys: [string, string] // [upKey, downKey]
+    ) {}
 
-        private inputManager:InputManager,
-        private inputType: "LETTERS" | "ARROW"
-
-
-    ){
-
+    draw(ctx: CanvasRenderingContext2D) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(
+            this.x, // x
+            this.y, // y
+            this.size, // width
+            this.getHight() // height
+        );
+    }
+    
+    private keepInBoundaries() {
+        if (this.y + this.size * 4 >= HIGHT) this.y = HIGHT - this.size * 4; 
+        if (this.y <= 0) this.y = 0; 
     }
 
-         draw(ctx: CanvasRenderingContext2D) {
-
-            ctx.fillStyle = 'white'
-            ctx.fillRect(
-            this.x // x
-            ,this.y // y
-            ,this.size // width
-            ,this.getHight() // height
-            );
-
+    public update(dt: number) {
+        this.keepInBoundaries();
+        
+        // Check if up key is pressed
+        if (this.inputManager.isKeyPressed(this.keys[0])) {
+            this.y -= this.baseSpeed * dt;
         }
         
-        private keepInBoundaries(){
-            if(this.y + this.size*4>= HIGHT) this.y = HIGHT - this.size*4; 
-            if(this.y <= 0) this.y = 0; 
-
+        // Check if down key is pressed
+        if (this.inputManager.isKeyPressed(this.keys[1])) {
+            this.y += this.baseSpeed * dt;
         }
-
-        public update(){
-            this.keepInBoundaries()
-            const action = this.inputManager?.getCurrentAction(this.inputType)
-            console.log("paddle",action)
-
-            if(!action) return
-
-            if(action.type === "MOVE_UP"){
-                this.y -= this.speed // adding a speed vector
-            }else if(action.type === "MOVE_DOWN"){
-                this.y += this.speed
-            }
-
-        }
-        public getHight(){
-            return this.size * this.ratio;
-
-        }
-
+    }
+    
+    public getHight() {
+        return this.size * this.ratio;
+    }
 }
